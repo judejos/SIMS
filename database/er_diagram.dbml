@@ -1,0 +1,157 @@
+# SIMS - Entity Relationship Diagram
+# ============================================================
+# Use https://dbdiagram.io and paste the DBML below to
+# generate a visual ER diagram PNG.
+# ============================================================
+
+Table auth_user {
+  id            integer     [pk, increment]
+  username      varchar(150) [unique, not null]
+  email         varchar(254)
+  password      varchar(128)
+  first_name    varchar(150)
+  last_name     varchar(150)
+  is_staff      boolean
+  is_active     boolean
+  is_superuser  boolean
+  date_joined   datetime
+  last_login    datetime
+}
+
+Table users_profile {
+  id            integer   [pk, increment]
+  user_id       integer   [ref: - auth_user.id]
+  role          varchar(20)
+  phone         varchar(20)
+  department    varchar(100)
+  photo         varchar(255)
+  resume        varchar(255)
+  joined_date   date
+}
+
+Table interns_intern {
+  id            integer   [pk, increment]
+  user_id       integer   [ref: - auth_user.id]
+  mentor_id     integer   [ref: > auth_user.id]
+  college       varchar(200)
+  degree        varchar(100)
+  start_date    date
+  end_date      date
+  status        varchar(20)
+}
+
+Table teams_team {
+  id            integer   [pk, increment]
+  name          varchar(100)
+  lead_id       integer   [ref: > auth_user.id]
+  description   text
+  created_at    datetime
+}
+
+Table teams_team_members {
+  id            integer   [pk, increment]
+  team_id       integer   [ref: > teams_team.id]
+  user_id       integer   [ref: > auth_user.id]
+}
+
+Table projects_project {
+  id            integer   [pk, increment]
+  name          varchar(200)
+  description   text
+  manager_id    integer   [ref: > auth_user.id]
+  status        varchar(20)
+  start_date    date
+  end_date      date
+  created_at    datetime
+}
+
+Table projects_project_members {
+  id            integer   [pk, increment]
+  project_id    integer   [ref: > projects_project.id]
+  user_id       integer   [ref: > auth_user.id]
+}
+
+Table tasks_task {
+  id              integer   [pk, increment]
+  title           varchar(200)
+  description     text
+  assigned_to_id  integer   [ref: > auth_user.id]
+  assigned_by_id  integer   [ref: > auth_user.id]
+  priority        varchar(10)
+  status          varchar(20)
+  due_date        date
+  created_at      datetime
+}
+
+Table attendance_attendance {
+  id            integer   [pk, increment]
+  user_id       integer   [ref: > auth_user.id]
+  date          date
+  check_in      time
+  check_out     time
+  status        varchar(20)
+  notes         text
+}
+
+Table payroll_payroll {
+  id            integer   [pk, increment]
+  employee_id   integer   [ref: > auth_user.id]
+  basic_salary  decimal
+  bonus         decimal
+  deductions    decimal
+  final_salary  decimal
+  payment_date  date
+  created_at    datetime
+}
+
+Table assets_asset {
+  id              integer   [pk, increment]
+  asset_name      varchar(100)
+  asset_id        varchar(50) [unique]
+  assigned_to_id  integer   [ref: > auth_user.id]
+  status          varchar(20)
+  purchase_date   date
+  image           varchar(255)
+}
+
+Table documents_document {
+  id              integer   [pk, increment]
+  title           varchar(200)
+  file            varchar(255)
+  uploaded_by_id  integer   [ref: > auth_user.id]
+  uploaded_at     datetime
+}
+
+Table feedback_feedback {
+  id            integer   [pk, increment]
+  given_by_id   integer   [ref: > auth_user.id]
+  given_to_id   integer   [ref: > auth_user.id]
+  rating        integer
+  comments      text
+  created_at    datetime
+}
+
+Table notifications_notification {
+  id            integer   [pk, increment]
+  recipient_id  integer   [ref: > auth_user.id]
+  message       text
+  is_read       boolean
+  created_at    datetime
+}
+
+Table certificates_certificate {
+  id            integer   [pk, increment]
+  intern_id     integer   [ref: > auth_user.id]
+  issued_by_id  integer   [ref: > auth_user.id]
+  title         varchar(200)
+  issued_date   date
+  file          varchar(255)
+}
+
+Table settings_module_sitesettings {
+  id                          integer   [pk, increment]
+  site_name                   varchar(100)
+  contact_email               varchar(254)
+  max_interns                 integer
+  internship_duration_months  integer
+}
