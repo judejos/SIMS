@@ -5,6 +5,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { getPayrolls, createPayroll, deletePayroll } from '../../services/payrollAPI'
 import { getUsers } from '../../services/usersAPI'
 import Table from '../../components/tables/Table'
+import ConfirmModal from '../../components/modals/ConfirmModal'
 import Modal from '../../components/modals/Modal'
 import Button from '../../components/common/Button'
 import StatCard from '../../components/cards/StatCard'
@@ -13,6 +14,7 @@ import { Wallet, TrendingUp, Users } from 'lucide-react'
 
 export default function PayrollDashboard() {
   const [payrolls, setPayrolls] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
@@ -43,8 +45,7 @@ export default function PayrollDashboard() {
     } catch { toast.error('Failed to create payroll') }
   }
 
-  const onDelete = async (id) => {
-    if (!confirm('Delete this record?')) return
+  const executeDelete = async (id) => {
     await deletePayroll(id); toast.success('Deleted'); load()
   }
 
@@ -57,7 +58,7 @@ export default function PayrollDashboard() {
     { key: 'payment_date', label: 'Date' },
     {
       key: 'actions', label: '', render: r => (
-        <button onClick={() => onDelete(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+        <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
       )
     },
   ]
@@ -74,6 +75,16 @@ export default function PayrollDashboard() {
         <Table columns={columns} data={payrolls} loading={loading} />
       </div>
 
+      
+      <ConfirmModal 
+        open={!!deletingId} 
+        onClose={() => setDeletingId(null)} 
+        onConfirm={() => executeDelete(deletingId)}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this record? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
       <Modal open={modal} onClose={() => setModal(false)} title="Add Payroll Record">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div>

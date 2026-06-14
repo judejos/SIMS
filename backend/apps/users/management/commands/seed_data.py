@@ -228,4 +228,5 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS('\nSeed complete! New login credentials (password: Vdart@123):'))
         for u, user_obj in created_users.items():
-            self.stdout.write(f'  {u} ({user_obj.profile.role})')
+            fresh_profile = Profile.objects.get(user=user_obj)
+            self.stdout.write(f'  {u} ({fresh_profile.role})')

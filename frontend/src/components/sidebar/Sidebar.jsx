@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Users, UserCheck, Building2, CreditCard,
@@ -31,6 +32,7 @@ const getInternLinks = (role) => [
   { to: '/intern-user', icon: ClipboardList, label: 'Tasks' },
   { to: '/intern-user', icon: FileText, label: 'Documents' },
   { to: '/intern-user', icon: BarChart3, label: 'Performance' },
+  { to: '/intern-user', icon: Bot, label: 'AI Center' },
   { to: '/intern-user', icon: User, label: 'Profile' },
 ]
 
@@ -42,6 +44,7 @@ const getDashboardLinks = (role) => [
   { to: '/attendance', icon: CalendarCheck, label: 'Attendance', roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
   { to: '/asset', icon: Package, label: 'Assets', roles: MANAGER_ROLES },
   { to: '/payroll', icon: Wallet, label: 'Payroll', roles: ADMIN_ROLES },
+  { to: '/ai', icon: Bot, label: 'AI Center', roles: ['admin', 'superadmin', 'manager', 'lead', 'sme', 'mentor'] },
 ]
 
 export default function Sidebar({ role }) {
@@ -61,6 +64,8 @@ export default function Sidebar({ role }) {
   const otherDashboards = isManagerOrAdmin 
     ? getDashboardLinks(role).filter(link => !['/admin', '/manager'].includes(link.to) && link.roles.includes(role))
     : []
+
+  const [isOtherOpen, setIsOtherOpen] = useState(true)
 
   return (
     <aside className="w-64 bg-primary-900 text-white flex flex-col flex-shrink-0 h-full">
@@ -90,26 +95,32 @@ export default function Sidebar({ role }) {
 
         {otherDashboards.length > 0 && (
           <>
-            <div className="px-5 pt-4 pb-1">
+            <button 
+              onClick={() => setIsOtherOpen(!isOtherOpen)}
+              className="w-full flex items-center justify-between px-5 pt-4 pb-2 text-left"
+            >
               <p className="text-xs text-primary-400 uppercase tracking-wider font-medium">Other Dashboards</p>
+              <ChevronRight size={14} className={`text-primary-400 transition-transform ${isOtherOpen ? 'rotate-90' : ''}`} />
+            </button>
+            
+            <div className={`overflow-hidden transition-all duration-200 ${isOtherOpen ? 'max-h-96' : 'max-h-0'}`}>
+              {otherDashboards.map(({ to, icon: Icon, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-5 py-2 text-sm transition-colors ${
+                      isActive
+                        ? 'bg-primary-700 text-white font-medium'
+                        : 'text-primary-300 hover:bg-primary-800 hover:text-white'
+                    }`
+                  }
+                >
+                  <Icon size={16} className="flex-shrink-0 opacity-70" />
+                  {label}
+                </NavLink>
+              ))}
             </div>
-            {otherDashboards.map(({ to, icon: Icon, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-5 py-2 text-sm transition-colors ${
-                    isActive
-                      ? 'bg-primary-700 text-white font-medium'
-                      : 'text-primary-300 hover:bg-primary-800 hover:text-white'
-                  }`
-                }
-              >
-                <Icon size={16} className="flex-shrink-0" />
-                {label}
-                <ChevronRight size={12} className="ml-auto opacity-50" />
-              </NavLink>
-            ))}
           </>
         )}
       </nav>

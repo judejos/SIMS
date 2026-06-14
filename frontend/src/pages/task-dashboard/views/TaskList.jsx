@@ -1,23 +1,28 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { Pencil, Trash2, Plus } from 'lucide-react'
+import { Pencil, Trash2, Plus, LayoutGrid, List as ListIcon } from 'lucide-react'
 import { getTasks, createTask, updateTask, deleteTask } from '../../../services/tasksAPI'
 import { getUsers } from '../../../services/usersAPI'
 import Table from '../../../components/tables/Table'
+import ConfirmModal from '../../../components/modals/ConfirmModal'
 import Modal from '../../../components/modals/Modal'
 import Button from '../../../components/common/Button'
 import Badge from '../../../components/common/Badge'
 import PageHeader from '../../../components/common/PageHeader'
 import SearchBar from '../../../components/common/SearchBar'
 import useSearch from '../../../hooks/useSearch'
+import KanbanBoard from '../../../components/kanban/KanbanBoard'
 
 export default function TaskList() {
   const [tasks, setTasks] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [viewMode, setViewMode] = useState('board') // 'list' or 'board'
+  
   const { register, handleSubmit, reset, setValue } = useForm()
   const { query, setQuery, filtered } = useSearch(tasks, ['title', 'description', 'status', 'priority'])
 
@@ -45,8 +50,7 @@ export default function TaskList() {
     } catch { toast.error('Failed to save task') }
   }
 
-  const onDelete = async (id) => {
-    if (!confirm('Delete this task?')) return
+  const executeDelete = async (id) => {
     await deleteTask(id); toast.success('Deleted'); load()
   }
 
@@ -61,20 +65,63 @@ export default function TaskList() {
     { key: 'actions', label: '', render: r => (
       <div className="flex gap-2">
         <button onClick={() => openEdit(r)} className="text-blue-500 hover:text-blue-700"><Pencil size={15} /></button>
-        <button onClick={() => onDelete(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+        <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
       </div>
     )},
   ]
 
   return (
     <div>
-      <PageHeader title="All Tasks" subtitle={`${filtered.length} of ${tasks.length} tasks`} action={<Button onClick={openAdd}><Plus size={15} className="inline mr-1" />New Task</Button>} />
-      <div className="bg-white rounded-xl shadow-sm">
-        <div className="px-5 py-3 border-b">
-          <SearchBar value={query} onChange={setQuery} placeholder="Search by title, status, priority…" className="max-w-sm" />
-        </div>
-        <Table columns={columns} data={filtered} loading={loading} />
+      <PageHeader 
+        title="Tasks Overview" 
+        subtitle={`${filtered.length} of ${tasks.length} tasks`} 
+        action={
+          <div className="flex gap-4 items-center">
+            <div className="flex bg-gray-100 p-1 rounded-lg">
+              <button 
+                onClick={() => setViewMode('board')} 
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'board' ? 'bg-white shadow-sm text-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
+                title="Board View"
+              >
+                <LayoutGrid size={18} />
+              </button>
+              <button 
+                onClick={() => setViewMode('list')} 
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
+                title="List View"
+              >
+                <ListIcon size={18} />
+              </button>
+            </div>
+            <Button onClick={openAdd}><Plus size={15} className="inline mr-1" />New Task</Button>
+          </div>
+        } 
+      />
+      
+      <div className="mb-6">
+        <SearchBar value={query} onChange={setQuery} placeholder="Search tasks by title, status, priority…" className="max-w-md bg-white shadow-sm border-0" />
       </div>
+
+      {loading ? (
+        <div className="flex justify-center p-12 text-gray-400">Loading tasks...</div>
+      ) : viewMode === 'board' ? (
+        <KanbanBoard tasks={filtered} users={users} onEdit={openEdit} />
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <Table columns={columns} data={filtered} loading={loading} />
+        </div>
+      )}
+
+      
+      <ConfirmModal 
+        open={!!deletingId} 
+        onClose={() => setDeletingId(null)} 
+        onConfirm={() => executeDelete(deletingId)}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this record? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Task' : 'New Task'}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div>

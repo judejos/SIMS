@@ -15,7 +15,7 @@ export default function Button({ children, variant = 'primary', size = 'md', onC
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`rounded-lg font-medium transition-all duration-200 active:scale-95 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {children}
     </button>

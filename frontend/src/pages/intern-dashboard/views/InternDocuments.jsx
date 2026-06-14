@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { Plus, Trash2 } from 'lucide-react'
 import api from '../../../services/api'
 import Table from '../../../components/tables/Table'
+import ConfirmModal from '../../../components/modals/ConfirmModal'
 import Modal from '../../../components/modals/Modal'
 import Button from '../../../components/common/Button'
 import PageHeader from '../../../components/common/PageHeader'
@@ -12,6 +13,7 @@ import useSearch from '../../../hooks/useSearch'
 
 export default function InternDocuments() {
   const [docs, setDocs] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
   const { register, handleSubmit, reset } = useForm()
@@ -28,8 +30,7 @@ export default function InternDocuments() {
     catch { toast.error('Upload failed') }
   }
 
-  const onDelete = async (id) => {
-    if (!confirm('Delete?')) return
+  const executeDelete = async (id) => {
     await api.delete(`/documents/${id}/`); toast.success('Deleted'); load()
   }
 
@@ -40,7 +41,7 @@ export default function InternDocuments() {
     { key: 'uploaded_by', label: 'Uploaded By' },
     { key: 'uploaded_at', label: 'Date', render: r => r.uploaded_at?.slice(0, 10) },
     { key: 'actions', label: '', render: r => (
-      <button onClick={() => onDelete(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+      <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
     )},
   ]
 
@@ -53,6 +54,16 @@ export default function InternDocuments() {
         </div>
         <Table columns={columns} data={filtered} loading={loading} />
       </div>
+      
+      <ConfirmModal 
+        open={!!deletingId} 
+        onClose={() => setDeletingId(null)} 
+        onConfirm={() => executeDelete(deletingId)}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this record? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
       <Modal open={modal} onClose={() => setModal(false)} title="Upload Document">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div>

@@ -9,6 +9,7 @@ import {
 } from '../../services/payrollAPI'
 import { getUsers } from '../../services/usersAPI'
 import Table from '../../components/tables/Table'
+import ConfirmModal from '../../components/modals/ConfirmModal'
 import Modal from '../../components/modals/Modal'
 import Button from '../../components/common/Button'
 import PageHeader from '../../components/common/PageHeader'
@@ -33,6 +34,7 @@ function StatusBadge({ value }) {
 
 export default function Payments() {
   const [payments, setPayments] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
   const [users, setUsers] = useState([])
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -73,8 +75,7 @@ export default function Payments() {
     }
   }
 
-  const onDelete = async (id) => {
-    if (!confirm('Delete this payment record?')) return
+  const executeDelete = async (id) => {
     await deleteInternPayment(id); toast.success('Deleted'); load()
   }
 
@@ -101,7 +102,7 @@ export default function Payments() {
     { key: 'actions', label: '', render: r => (
       <div className="flex gap-2">
         <button onClick={() => openEdit(r)} className="text-blue-500 hover:text-blue-700"><Pencil size={15} /></button>
-        <button onClick={() => onDelete(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+        <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
       </div>
     )},
   ]
@@ -152,6 +153,16 @@ export default function Payments() {
       </div>
 
       {/* Add / Edit Modal */}
+      
+      <ConfirmModal 
+        open={!!deletingId} 
+        onClose={() => setDeletingId(null)} 
+        onConfirm={() => executeDelete(deletingId)}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this record? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Payment' : 'Add Payment'}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           {!editing && (

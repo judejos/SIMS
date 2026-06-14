@@ -4,12 +4,14 @@ import toast from 'react-hot-toast'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import api from '../../services/api'
 import Table from '../../components/tables/Table'
+import ConfirmModal from '../../components/modals/ConfirmModal'
 import Modal from '../../components/modals/Modal'
 import Button from '../../components/common/Button'
 import PageHeader from '../../components/common/PageHeader'
 
 export default function EntityManagement() {
   const [entities, setEntities] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
   const [loading, setLoading] = useState(false)
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -30,8 +32,7 @@ export default function EntityManagement() {
       toast.success('Saved!'); setModal(false); load()
     } catch { toast.error('Failed') }
   }
-  const onDelete = async (id) => {
-    if (!confirm('Delete?')) return
+  const executeDelete = async (id) => {
     await api.delete(`/teams/${id}/`); toast.success('Deleted'); load()
   }
 
@@ -42,7 +43,7 @@ export default function EntityManagement() {
     { key: 'actions', label: '', render: r => (
       <div className="flex gap-2">
         <button onClick={() => openEdit(r)} className="text-blue-500 hover:text-blue-700"><Pencil size={15} /></button>
-        <button onClick={() => onDelete(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+        <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
       </div>
     )},
   ]
@@ -51,6 +52,16 @@ export default function EntityManagement() {
     <div>
       <PageHeader title="Entity Management" subtitle="Manage entities, branches and departments" action={<Button onClick={openAdd}><Plus size={15} className="inline mr-1" />Add Entity</Button>} />
       <div className="bg-white rounded-xl shadow-sm"><Table columns={columns} data={entities} loading={loading} /></div>
+      
+      <ConfirmModal 
+        open={!!deletingId} 
+        onClose={() => setDeletingId(null)} 
+        onConfirm={() => executeDelete(deletingId)}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this record? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Entity' : 'Add Entity'}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div>

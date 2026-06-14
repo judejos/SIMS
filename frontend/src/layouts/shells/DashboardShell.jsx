@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Menu, X, LogOut, Bell, ChevronRight, LayoutDashboard, Users, ClipboardList, CalendarCheck, Package, Wallet, User } from 'lucide-react'
+import { Menu, X, LogOut, Bell, ChevronRight, LayoutDashboard, Users, UserCheck, ClipboardList, CalendarCheck, Package, Wallet, User, Bot } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
 import ErrorBoundary from '../../components/common/ErrorBoundary'
@@ -15,12 +15,13 @@ export default function DashboardShell({ title, navItems, defaultView, accentCol
   
   const DASHBOARD_CONFIG = [
     { path: role === 'manager' ? '/manager' : '/admin', label: role === 'manager' ? 'Management Dashboard' : 'Full System Dashboard', icon: LayoutDashboard, roles: MANAGER_ROLES },
-    { path: '/intern-mgmt', label: 'Intern Mgmt', icon: Users, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
-    { path: '/mentor', label: 'Mentoring Dashboard', icon: Users, roles: ['mentor'] },
+    { path: '/intern-mgmt', label: 'Intern Mgmt', icon: UserCheck, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+    { path: '/mentor', label: 'Mentoring Dashboard', icon: UserCheck, roles: ['mentor'] },
     { path: '/task', label: ['lead', 'sme'].includes(role) ? 'Project & Task Dashboard' : 'Tasks', icon: ClipboardList, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
     { path: '/attendance', label: 'Attendance', icon: CalendarCheck, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
     { path: '/asset', label: 'Assets', icon: Package, roles: MANAGER_ROLES },
     { path: '/payroll', label: 'Payroll', icon: Wallet, roles: ADMIN_ROLES },
+    { path: '/ai', label: 'AI Center', icon: Bot, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme', 'mentor'] },
     { path: '/intern-user', label: 'Self-Service Dashboard', icon: User, roles: ['intern'] },
   ]
 

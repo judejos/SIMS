@@ -45,6 +45,7 @@ import AssetDashboardShell from '../pages/asset-dashboard/AssetDashboardShell'
 import PayrollDashboardShell from '../pages/payroll-dashboard/PayrollDashboardShell'
 import InternUserDashboardShell from '../pages/intern-user/InternUserDashboardShell'
 import InternDashboardShell from '../pages/intern-dashboard/InternDashboardShell'
+import AIDashboardShell from '../pages/ai/AIDashboardShell'
 
 // Intern staff pages
 import InternDashboard from '../pages/intern/Dashboard'
@@ -55,6 +56,9 @@ import InternDocuments from '../pages/intern/Documents'
 import InternPerformance from '../pages/intern/Performance'
 import InternProfile from '../pages/intern/Profile'
 
+// Onboarding
+import InternOnboarding from '../pages/onboarding/InternOnboarding'
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -64,6 +68,9 @@ export default function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
+      
+      {/* Public Onboarding */}
+      <Route path="/InternOnboarding" element={<InternOnboarding />} />
 
       {/* Admin Dashboard Shell — /admin/* */}
       <Route path="/admin" element={<ProtectedRoute roles={MANAGER_ROLES}><AdminLayout /></ProtectedRoute>}>
@@ -123,6 +130,9 @@ export default function AppRoutes() {
 
       {/* Payroll Dashboard Shell — /payroll/* */}
       <Route path="/payroll/*" element={<ProtectedRoute roles={STAFF_ROLES}><PayrollDashboardShell /></ProtectedRoute>} />
+
+      {/* AI Dashboard Shell — /ai/* */}
+      <Route path="/ai/*" element={<ProtectedRoute roles={STAFF_ROLES}><AIDashboardShell /></ProtectedRoute>} />
 
       {/* Intern Self-Service — /intern-user/* */}
       <Route path="/intern-user/*" element={<ProtectedRoute roles={['intern']}><InternUserDashboardShell /></ProtectedRoute>} />

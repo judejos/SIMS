@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { getAssets, createAsset, updateAsset, deleteAsset } from '../../../services/assetsAPI'
 import { getUsers } from '../../../services/usersAPI'
 import Table from '../../../components/tables/Table'
+import ConfirmModal from '../../../components/modals/ConfirmModal'
 import Modal from '../../../components/modals/Modal'
 import Button from '../../../components/common/Button'
 import Badge from '../../../components/common/Badge'
@@ -14,6 +15,7 @@ import useSearch from '../../../hooks/useSearch'
 
 export default function AssetList() {
   const [assets, setAssets] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
@@ -37,8 +39,7 @@ export default function AssetList() {
       toast.success('Saved!'); setModal(false); load()
     } catch { toast.error('Failed') }
   }
-  const onDelete = async (id) => {
-    if (!confirm('Delete?')) return
+  const executeDelete = async (id) => {
     await deleteAsset(id); toast.success('Deleted'); load()
   }
   const getName = (id) => users.find(u => u.id === id)?.username || '—'
@@ -52,7 +53,7 @@ export default function AssetList() {
     { key: 'actions', label: '', render: r => (
       <div className="flex gap-2">
         <button onClick={() => openEdit(r)} className="text-blue-500 hover:text-blue-700"><Pencil size={15} /></button>
-        <button onClick={() => onDelete(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+        <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
       </div>
     )},
   ]
@@ -66,6 +67,16 @@ export default function AssetList() {
         </div>
         <Table columns={columns} data={filtered} loading={loading} />
       </div>
+      
+      <ConfirmModal 
+        open={!!deletingId} 
+        onClose={() => setDeletingId(null)} 
+        onConfirm={() => executeDelete(deletingId)}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this record? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Asset' : 'Add Asset'}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">

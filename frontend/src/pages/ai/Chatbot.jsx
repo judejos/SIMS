@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Send, Bot } from 'lucide-react'
+import api from '../../services/api'
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([
@@ -7,10 +8,19 @@ export default function Chatbot() {
   ])
   const [input, setInput] = useState('')
 
-  const send = () => {
+  const send = async () => {
     if (!input.trim()) return
-    setMessages(m => [...m, { role: 'user', text: input }, { role: 'bot', text: 'This feature is coming soon with full AI integration.' }])
+    const userMsg = { role: 'user', text: input }
+    setMessages(m => [...m, userMsg])
     setInput('')
+    
+    try {
+      const res = await api.post('/ai/chatbot/', { message: input })
+      setMessages(m => [...m, { role: 'bot', text: res.data.reply || res.data.error || 'No response.' }])
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || err.response?.data?.detail || 'Error connecting to AI service.'
+      setMessages(m => [...m, { role: 'bot', text: errorMsg }])
+    }
   }
 
   return (

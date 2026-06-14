@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import ConfirmModal from '../../../components/modals/ConfirmModal'
 import { getInterns, deleteIntern } from '../../../services/internsAPI'
 import { Trash2, Bot } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -11,6 +12,7 @@ import useSearch from '../../../hooks/useSearch'
 
 export default function InternUsers() {
   const [interns, setInterns] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
   const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
 
@@ -20,8 +22,7 @@ export default function InternUsers() {
   const statusFiltered = filter === 'all' ? interns : interns.filter(i => i.status === filter)
   const { query, setQuery, filtered } = useSearch(statusFiltered, ['college', 'degree', 'domain', 'status'])
 
-  const onDelete = async (id) => {
-    if (!confirm('Delete intern?')) return
+  const executeDelete = async (id) => {
     await deleteIntern(id); toast.success('Deleted'); load()
   }
 
@@ -41,7 +42,7 @@ export default function InternUsers() {
     { key: 'status', label: 'Status', render: r => <Badge value={r.status} /> },
     { key: 'ai', label: 'AI Badge', render: () => <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full flex items-center gap-1 w-fit"><Bot size={11} />Analysed</span> },
     { key: 'actions', label: '', render: r => (
-      <button onClick={() => onDelete(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+      <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
     )},
   ]
 

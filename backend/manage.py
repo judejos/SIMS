@@ -2,6 +2,8 @@
 import os
 import sys
 
+# Trigger reload
+
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sims_project.settings')

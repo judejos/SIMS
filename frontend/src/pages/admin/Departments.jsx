@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, Building2 } from 'lucide-react'
 import api from '../../services/api'
 import Table from '../../components/tables/Table'
 import Modal from '../../components/modals/Modal'
+import ConfirmModal from '../../components/modals/ConfirmModal'
 import Button from '../../components/common/Button'
 import PageHeader from '../../components/common/PageHeader'
 import SearchBar from '../../components/common/SearchBar'
@@ -15,6 +16,7 @@ export default function Departments() {
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
   const { register, handleSubmit, reset, setValue } = useForm()
   const { query, setQuery, filtered } = useSearch(departments, ['name'])
 
@@ -37,10 +39,12 @@ export default function Departments() {
     } catch { toast.error('Failed to save') }
   }
 
-  const onDelete = async (id) => {
-    if (!confirm('Delete this department?')) return
-    await api.delete(`/settings/departments/${id}/`)
-    toast.success('Deleted'); load()
+  const executeDelete = async (id) => {
+    try {
+      await api.delete(`/settings/departments/${id}/`)
+      toast.success('Deleted')
+      load()
+    } catch { toast.error('Failed to delete') }
   }
 
   const columns = [
@@ -57,7 +61,7 @@ export default function Departments() {
       key: 'actions', label: '', render: r => (
         <div className="flex gap-2">
           <button onClick={() => openEdit(r)} className="text-blue-500 hover:text-blue-700"><Pencil size={15} /></button>
-          <button onClick={() => onDelete(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+          <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
         </div>
       )
     },
@@ -77,6 +81,16 @@ export default function Departments() {
         </div>
         <Table columns={columns} data={filtered} loading={loading} emptyTitle="No departments yet" />
       </div>
+
+      <ConfirmModal 
+        open={!!deletingId} 
+        onClose={() => setDeletingId(null)} 
+        onConfirm={() => executeDelete(deletingId)}
+        title="Delete Department"
+        message="Are you sure you want to delete this department? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
 
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Department' : 'Add Department'}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

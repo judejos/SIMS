@@ -5,12 +5,14 @@ import { Plus, Trash2, Star } from 'lucide-react'
 import { getFeedbacks, createFeedback, deleteFeedback } from '../../services/feedbackAPI'
 import { getUsers } from '../../services/usersAPI'
 import Table from '../../components/tables/Table'
+import ConfirmModal from '../../components/modals/ConfirmModal'
 import Modal from '../../components/modals/Modal'
 import Button from '../../components/common/Button'
 import PageHeader from '../../components/common/PageHeader'
 
 export default function PerformanceFeedbackPage() {
   const [feedbacks, setFeedbacks] = useState([])
+  const [deletingId, setDeletingId] = useState(null)
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
@@ -29,8 +31,7 @@ export default function PerformanceFeedbackPage() {
     try { await createFeedback(data); toast.success('Feedback submitted!'); setModal(false); reset(); load() }
     catch { toast.error('Failed') }
   }
-  const onDelete = async (id) => {
-    if (!confirm('Delete?')) return
+  const executeDelete = async (id) => {
     await deleteFeedback(id); toast.success('Deleted'); load()
   }
 
@@ -45,7 +46,7 @@ export default function PerformanceFeedbackPage() {
     { key: 'comments', label: 'Comments', render: r => r.comments || '—' },
     { key: 'created_at', label: 'Date', render: r => r.created_at?.slice(0, 10) },
     { key: 'actions', label: '', render: r => (
-      <button onClick={() => onDelete(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
+      <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
     )},
   ]
 
@@ -53,6 +54,16 @@ export default function PerformanceFeedbackPage() {
     <div>
       <PageHeader title="Performance Feedback" subtitle="All feedback submissions" action={<Button onClick={() => setModal(true)}><Plus size={15} className="inline mr-1" />Add Feedback</Button>} />
       <div className="bg-white rounded-xl shadow-sm"><Table columns={columns} data={feedbacks} loading={loading} /></div>
+      
+      <ConfirmModal 
+        open={!!deletingId} 
+        onClose={() => setDeletingId(null)} 
+        onConfirm={() => executeDelete(deletingId)}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this record? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
       <Modal open={modal} onClose={() => setModal(false)} title="Submit Feedback">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">

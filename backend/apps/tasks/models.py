@@ -25,7 +25,19 @@ class Task(models.Model):
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='todo')
     due_date = models.DateField(null=True, blank=True)
+    progress = models.IntegerField(default=0)
+    blocked_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='blocking')
+    sla_hours = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
+
+class Subtask(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
+    title = models.CharField(max_length=200)
+    is_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.task.title} - {self.title}"

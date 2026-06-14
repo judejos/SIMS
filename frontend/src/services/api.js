@@ -5,7 +5,7 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access')
+  const token = sessionStorage.getItem('access')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -24,17 +24,17 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true
       try {
-        const refresh = localStorage.getItem('refresh')
+        const refresh = sessionStorage.getItem('refresh')
         if (!refresh) throw new Error('No refresh token')
         const { data } = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'}/auth/token/refresh/`,
           { refresh }
         )
-        localStorage.setItem('access', data.access)
+        sessionStorage.setItem('access', data.access)
         original.headers.Authorization = `Bearer ${data.access}`
         return api(original)
       } catch {
-        localStorage.clear()
+        sessionStorage.clear()
         window.location.href = '/login'
       }
     }

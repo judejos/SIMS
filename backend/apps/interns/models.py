@@ -20,12 +20,18 @@ class Intern(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     dob = models.DateField(null=True, blank=True)
     photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
+    aadhar_number = models.CharField(max_length=20, blank=True)
+    gender = models.CharField(max_length=10, blank=True)
     # Academic
     college = models.CharField(max_length=200, blank=True)
     degree = models.CharField(max_length=100, blank=True)
     intern_department = models.CharField(max_length=100, blank=True)
+    registration_number = models.CharField(max_length=100, blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    year_of_passing = models.CharField(max_length=4, blank=True)
     # Internship
     domain = models.CharField(max_length=100, blank=True)
+    shift_timing = models.CharField(max_length=50, blank=True)
     scheme = models.CharField(max_length=10, choices=SCHEME_CHOICES, default='free')
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)

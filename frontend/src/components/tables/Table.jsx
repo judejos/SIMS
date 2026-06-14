@@ -42,7 +42,7 @@ export default function Table({ columns, data, loading, emptyTitle, emptySubtitl
         </thead>
         <tbody className="divide-y divide-gray-100">
           {data.map((row, i) => (
-            <tr key={row.id ?? i} className="hover:bg-gray-50 transition-colors">
+            <tr key={row.id ?? i} className="hover:bg-gray-50 transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_2px_8px_-4px_rgba(0,0,0,0.1)] relative z-0 hover:z-10 bg-white">
               {columns.map(col => (
                 <td key={col.key} className="px-6 py-3 text-gray-700">
                   {col.render ? col.render(row) : (row[col.key] ?? '—')}
