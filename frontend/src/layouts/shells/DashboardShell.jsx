@@ -1,14 +1,25 @@
 import { useState } from 'react'
-import { Menu, X, LogOut, Bell, ChevronRight } from 'lucide-react'
+import { Menu, X, LogOut, Bell, ChevronRight, LayoutDashboard, Users, ClipboardList, CalendarCheck, Package, Wallet, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
 import ErrorBoundary from '../../components/common/ErrorBoundary'
+
+const DASHBOARD_CONFIG = [
+  { path: '/admin', label: 'Admin', icon: LayoutDashboard, roles: ['super_admin', 'admin', 'manager'] },
+  { path: '/intern-mgmt', label: 'Intern Mgmt', icon: Users, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff'] },
+  { path: '/task', label: 'Tasks', icon: ClipboardList, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff'] },
+  { path: '/attendance', label: 'Attendance', icon: CalendarCheck, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff'] },
+  { path: '/asset', label: 'Assets', icon: Package, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'staff'] },
+  { path: '/payroll', label: 'Payroll', icon: Wallet, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'staff'] },
+  { path: '/intern-user', label: 'My Portal', icon: User, roles: ['intern'] },
+]
 
 export default function DashboardShell({ title, navItems, defaultView, accentColor = 'bg-primary-900' }) {
   const [activeView, setActiveView] = useState(defaultView || navItems[0]?.key)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const userDashboards = DASHBOARD_CONFIG.filter(db => db.roles.includes(user?.role))
 
   const handleLogout = async () => { await logout(); navigate('/login', { replace: true }) }
   const ActiveComponent = navItems.find(n => n.key === activeView)?.component
@@ -50,6 +61,38 @@ export default function DashboardShell({ title, navItems, defaultView, accentCol
               {sidebarOpen && <span className="truncate">{label}</span>}
             </button>
           ))}
+
+          {/* Dashboard Switcher Section */}
+          {userDashboards.length > 1 && (
+            <div className="mt-6 border-t border-white/10 pt-4">
+              {sidebarOpen ? (
+                <div className="px-4 mb-2">
+                  <p className="text-xs text-white/40 uppercase tracking-wider font-semibold">Dashboards</p>
+                </div>
+              ) : (
+                <div className="w-full border-b border-white/10 my-2" />
+              )}
+              
+              {userDashboards.map(({ path, label, icon: Icon }) => {
+                const isActive = window.location.pathname.startsWith(path)
+                return (
+                  <button
+                    key={path}
+                    onClick={() => navigate(path)}
+                    title={!sidebarOpen ? label : undefined}
+                    className={`w-full flex items-center gap-3 px-4 py-2 text-xs transition-colors relative
+                      ${isActive
+                        ? 'bg-white/15 text-white font-medium border-l-2 border-white'
+                        : 'text-white/55 hover:bg-white/10 hover:text-white'
+                      }`}
+                  >
+                    <Icon size={15} className="flex-shrink-0" />
+                    {sidebarOpen && <span className="truncate">{label}</span>}
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </nav>
 
         <div className="p-3 border-t border-white/10 flex-shrink-0">

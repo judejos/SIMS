@@ -20,13 +20,19 @@ class PayrollViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         user = self.request.user
         profile = getattr(user, 'profile', None)
-        if profile and profile.role == 'intern':
-            qs = qs.filter(employee=user)
+        if profile:
+            if profile.role == 'intern':
+                qs = qs.filter(employee=user)
+            elif profile.role == 'mentor':
+                qs = qs.filter(employee__intern__mentor=user)
+            elif profile.role in ('lead', 'sme'):
+                qs = qs.filter(employee__profile__department=profile.department)
         return qs
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
-            return [IsAdminOrManager()]
+            from apps.permissions import IsAdminOrManagerOrStaff
+            return [IsAdminOrManagerOrStaff()]
         return [permissions.IsAuthenticated()]
 
 
@@ -43,18 +49,27 @@ class InternPaymentViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         user = self.request.user
         profile = getattr(user, 'profile', None)
-        if profile and profile.role == 'intern':
-            return qs.filter(intern=user)
+        if profile:
+            if profile.role == 'intern':
+                return qs.filter(intern=user)
+            elif profile.role == 'mentor':
+                return qs.filter(intern__intern__mentor=user)
+            elif profile.role in ('lead', 'sme'):
+                return qs.filter(intern__profile__department=profile.department)
         return qs
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
-            return [IsAdminOrManager()]
+            from apps.permissions import IsAdminOrManagerOrStaff
+            return [IsAdminOrManagerOrStaff()]
         return [permissions.IsAuthenticated()]
 
     # GET /api/intern-payments/summary/
-    @action(detail=False, methods=['get'], permission_classes=[IsAdminOrManager])
+    @action(detail=False, methods=['get'])
     def summary(self, request):
+        from apps.permissions import IsAdminOrManagerOrStaff
+        if not IsAdminOrManagerOrStaff().has_permission(request, self):
+            return Response({'detail': 'Permission denied'}, status=403)
         qs = InternPayment.objects.all()
         agg = qs.aggregate(
             total_fee=Sum('internship_fee'),

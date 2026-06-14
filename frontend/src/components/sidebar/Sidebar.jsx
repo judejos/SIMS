@@ -41,7 +41,8 @@ const GROUP_LINKS = [
 ]
 
 export default function Sidebar({ role }) {
-  const links = role === 'admin' ? adminLinks : internLinks
+  const isAdminLike = ['super_admin', 'admin', 'manager'].includes(role)
+  const links = isAdminLike ? adminLinks : internLinks
 
   return (
     <aside className="w-64 bg-primary-900 text-white flex flex-col flex-shrink-0">
@@ -69,7 +70,7 @@ export default function Sidebar({ role }) {
           </NavLink>
         ))}
 
-        {role === 'admin' && (
+        {isAdminLike && (
           <>
             <div className="px-5 pt-4 pb-1">
               <p className="text-xs text-primary-400 uppercase tracking-wider font-medium">Other Dashboards</p>

@@ -21,13 +21,19 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         user = self.request.user
         profile = getattr(user, 'profile', None)
-        if profile and profile.role == 'intern':
-            qs = qs.filter(user=user)
+        if profile:
+            if profile.role == 'intern':
+                qs = qs.filter(user=user)
+            elif profile.role == 'mentor':
+                qs = qs.filter(user__intern__mentor=user)
+            elif profile.role in ('lead', 'sme'):
+                qs = qs.filter(user__profile__department=profile.department)
         return qs
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
-            return [IsAdminOrManager()]
+            from apps.permissions import IsAdminOrManagerOrStaff
+            return [IsAdminOrManagerOrStaff()]
         return [permissions.IsAuthenticated()]
 
 
@@ -42,27 +48,52 @@ class LeaveViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         user = self.request.user
         profile = getattr(user, 'profile', None)
-        if profile and profile.role == 'intern':
-            return qs.filter(user=user)
-        if profile and profile.role == 'mentor':
-            return qs.filter(user__intern__mentor=user)
+        if profile:
+            if profile.role == 'intern':
+                return qs.filter(user=user)
+            elif profile.role == 'mentor':
+                return qs.filter(user__intern__mentor=user)
+            elif profile.role in ('lead', 'sme'):
+                return qs.filter(user__profile__department=profile.department)
         return qs
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAdminOrManager])
+    @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         leave = self.get_object()
+        user = request.user
+        profile = getattr(user, 'profile', None)
+        is_authorized = (
+            user.is_superuser or (profile and (
+                profile.role in ('super_admin', 'admin', 'manager') or
+                (profile.role == 'mentor' and getattr(leave.user, 'intern', None) and leave.user.intern.mentor == user) or
+                (profile.role in ('lead', 'sme') and getattr(leave.user, 'profile', None) and leave.user.profile.department == profile.department)
+            ))
+        )
+        if not is_authorized:
+            return Response({'detail': 'Permission denied'}, status=403)
         leave.status = 'approved'
         leave.reviewed_by = request.user
         leave.reviewed_at = timezone.now()
         leave.save()
         return Response({'status': 'approved'})
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAdminOrManager])
+    @action(detail=True, methods=['post'])
     def reject(self, request, pk=None):
         leave = self.get_object()
+        user = request.user
+        profile = getattr(user, 'profile', None)
+        is_authorized = (
+            user.is_superuser or (profile and (
+                profile.role in ('super_admin', 'admin', 'manager') or
+                (profile.role == 'mentor' and getattr(leave.user, 'intern', None) and leave.user.intern.mentor == user) or
+                (profile.role in ('lead', 'sme') and getattr(leave.user, 'profile', None) and leave.user.profile.department == profile.department)
+            ))
+        )
+        if not is_authorized:
+            return Response({'detail': 'Permission denied'}, status=403)
         leave.status = 'rejected'
         leave.reviewed_by = request.user
         leave.reviewed_at = timezone.now()

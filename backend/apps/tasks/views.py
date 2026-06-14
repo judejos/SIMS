@@ -19,15 +19,19 @@ class TaskViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         user = self.request.user
         profile = getattr(user, 'profile', None)
-        if profile and profile.role == 'intern':
-            qs = qs.filter(assigned_to=user)
-        elif profile and profile.role == 'mentor':
-            qs = qs.filter(assigned_to__intern__mentor=user)
+        if profile:
+            if profile.role == 'intern':
+                qs = qs.filter(assigned_to=user)
+            elif profile.role == 'mentor':
+                qs = qs.filter(assigned_to__intern__mentor=user)
+            elif profile.role in ('lead', 'sme'):
+                qs = qs.filter(assigned_to__profile__department=profile.department)
         return qs
 
     def get_permissions(self):
         if self.action in ('create', 'destroy'):
-            return [IsAdminOrManager()]
+            from apps.permissions import IsStaffOrAbove
+            return [IsStaffOrAbove()]
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):

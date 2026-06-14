@@ -16,6 +16,19 @@ class InternViewSet(viewsets.ModelViewSet):
     ordering_fields = ['start_date', 'end_date', 'status']
     ordering = ['-start_date']
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        profile = getattr(user, 'profile', None)
+        if profile:
+            if profile.role == 'intern':
+                qs = qs.filter(user=user)
+            elif profile.role == 'mentor':
+                qs = qs.filter(mentor=user)
+            elif profile.role in ('lead', 'sme'):
+                qs = qs.filter(user__profile__department=profile.department)
+        return qs
+
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy', 'approve', 'reject'):
             return [IsAdminOrManager()]

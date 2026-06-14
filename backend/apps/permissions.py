@@ -60,3 +60,12 @@ class IsOwnerOrAdminOrManager(BasePermission):
 class ReadOnly(BasePermission):
     def has_permission(self, request, view):
         return request.method in ('GET', 'HEAD', 'OPTIONS')
+
+
+class IsAdminOrManagerOrStaff(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        profile = getattr(request.user, 'profile', None)
+        return request.user.is_superuser or (profile and profile.role in ('super_admin', 'admin', 'manager', 'staff'))
+
