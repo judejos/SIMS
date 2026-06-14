@@ -4,20 +4,20 @@
 -- ============================================================
 
 -- ============================================================
+-- ============================================================
 -- USERS (passwords are hashed — use Django createsuperuser for real)
--- Plain passwords for reference: admin=Admin@1234, others=Intern@1234
+-- Plain passwords for reference: All users use 'Vdart@123'
 -- ============================================================
 
 INSERT INTO auth_user (username, email, password, first_name, last_name, is_staff, is_active, is_superuser, date_joined)
 VALUES
-    ('admin',       'admin@sims.com',       'pbkdf2_sha256$...',  'Admin',    'User',     1, 1, 1, '2024-01-01 09:00:00'),
-    ('manager1',    'manager1@sims.com',    'pbkdf2_sha256$...',  'Ravi',     'Kumar',    1, 1, 0, '2024-01-02 09:00:00'),
-    ('manager2',    'manager2@sims.com',    'pbkdf2_sha256$...',  'Priya',    'Sharma',   1, 1, 0, '2024-01-02 09:00:00'),
-    ('intern1',     'intern1@sims.com',     'pbkdf2_sha256$...',  'Arjun',    'Mehta',    0, 1, 0, '2024-01-10 09:00:00'),
-    ('intern2',     'intern2@sims.com',     'pbkdf2_sha256$...',  'Sneha',    'Patel',    0, 1, 0, '2024-01-10 09:00:00'),
-    ('intern3',     'intern3@sims.com',     'pbkdf2_sha256$...',  'Karan',    'Singh',    0, 1, 0, '2024-01-15 09:00:00'),
-    ('intern4',     'intern4@sims.com',     'pbkdf2_sha256$...',  'Divya',    'Nair',     0, 1, 0, '2024-01-15 09:00:00'),
-    ('intern5',     'intern5@sims.com',     'pbkdf2_sha256$...',  'Rahul',    'Verma',    0, 1, 0, '2024-02-01 09:00:00');
+    ('Admin',       'admin@vdart.com',       'pbkdf2_sha256$...',  'System',   'Admin',    1, 1, 1, '2024-01-01 09:00:00'),
+    ('Manager',     'manager@vdart.com',     'pbkdf2_sha256$...',  'General',  'Manager',  1, 1, 0, '2024-01-02 09:00:00'),
+    ('Lead',        'lead@vdart.com',        'pbkdf2_sha256$...',  'Tech',     'Lead',     1, 1, 0, '2024-01-02 09:00:00'),
+    ('SME',         'sme@vdart.com',         'pbkdf2_sha256$...',  'Subject',  'Expert',   1, 1, 0, '2024-01-10 09:00:00'),
+    ('Mentor',      'mentor@vdart.com',      'pbkdf2_sha256$...',  'Training', 'Mentor',   1, 1, 0, '2024-01-10 09:00:00'),
+    ('Staff',       'staff@vdart.com',       'pbkdf2_sha256$...',  'Ops',      'Staff',    1, 1, 0, '2024-01-15 09:00:00'),
+    ('Intern',      'intern@vdart.com',      'pbkdf2_sha256$...',  'Dev',      'Intern',   1, 1, 0, '2024-01-15 09:00:00');
 
 -- ============================================================
 -- PROFILES
@@ -25,14 +25,13 @@ VALUES
 
 INSERT INTO users_profile (user_id, role, phone, department, joined_date)
 VALUES
-    (1, 'admin',    '9000000001', 'Management',       '2024-01-01'),
-    (2, 'manager',  '9000000002', 'Engineering',      '2024-01-02'),
-    (3, 'manager',  '9000000003', 'Design',           '2024-01-02'),
-    (4, 'intern',   '9000000004', 'Engineering',      '2024-01-10'),
-    (5, 'intern',   '9000000005', 'Design',           '2024-01-10'),
-    (6, 'intern',   '9000000006', 'Engineering',      '2024-01-15'),
-    (7, 'intern',   '9000000007', 'Marketing',        '2024-01-15'),
-    (8, 'intern',   '9000000008', 'Engineering',      '2024-02-01');
+    (1, 'super_admin', '9000000001', 'Administration',       '2024-01-01'),
+    (2, 'manager',     '9000000002', 'Management',           '2024-01-02'),
+    (3, 'lead',        '9000000003', 'Engineering',          '2024-01-02'),
+    (4, 'sme',         '9000000004', 'Subject Matter Experts','2024-01-10'),
+    (5, 'mentor',      '9000000005', 'Training',             '2024-01-10'),
+    (6, 'staff',       '9000000006', 'Operations',           '2024-01-15'),
+    (7, 'intern',      '9000000007', 'Development',          '2024-01-15');
 
 -- ============================================================
 -- INTERNS
@@ -40,11 +39,7 @@ VALUES
 
 INSERT INTO interns_intern (user_id, mentor_id, college, degree, start_date, end_date, status)
 VALUES
-    (4, 2, 'IIT Bombay',        'B.Tech Computer Science',  '2024-01-10', '2024-07-10', 'active'),
-    (5, 3, 'NID Ahmedabad',     'B.Des Interaction Design', '2024-01-10', '2024-07-10', 'active'),
-    (6, 2, 'NIT Trichy',        'B.Tech Information Tech',  '2024-01-15', '2024-07-15', 'active'),
-    (7, 3, 'Delhi University',  'BBA Marketing',            '2024-01-15', '2024-07-15', 'active'),
-    (8, 2, 'BITS Pilani',       'B.Tech Computer Science',  '2024-02-01', '2024-08-01', 'active');
+    (7, 5, 'Delhi University',  'BBA Marketing',            '2024-01-15', '2024-07-15', 'active');
 
 -- ============================================================
 -- TEAMS

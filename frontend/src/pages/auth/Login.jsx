@@ -4,8 +4,13 @@ import toast from 'react-hot-toast'
 import useAuth from '../../hooks/useAuth'
 
 const ROLE_REDIRECT = {
+  super_admin: '/admin',
   admin:   '/admin',
   manager: '/admin',
+  lead:    '/task',
+  sme:     '/task',
+  mentor:  '/task',
+  staff:   '/task',
   intern:  '/intern-user',
 }
 
