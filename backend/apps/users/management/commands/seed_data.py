@@ -11,8 +11,6 @@ from apps.projects.models import Project
 from apps.feedback.models import Feedback
 from apps.notifications.models import Notification
 from datetime import date, timedelta
-import random
-
 
 class Command(BaseCommand):
     help = 'Seed database with test data matching specifications'
@@ -37,13 +35,30 @@ class Command(BaseCommand):
         # --- Users ---
         users_data = [
             # username, password, first, last, is_staff, is_super, role, dept
-            ('Admin',   'Vdart@123', 'Super',  'Admin',   True,  True,  'super_admin', 'Administration'),
-            ('Manager', 'Vdart@123', 'John',   'Manager', True,  False, 'manager',     'Management'),
-            ('Lead',    'Vdart@123', 'Robert', 'Lead',    True,  False, 'lead',        'Engineering'),
-            ('SME',     'Vdart@123', 'Sarah',  'SME',     True,  False, 'sme',         'Subject Matter Experts'),
-            ('Mentor',  'Vdart@123', 'Alice',  'Mentor',  True,  False, 'mentor',      'Training'),
-            ('Staff',   'Vdart@123', 'Michael', 'Staff',  True,  False, 'staff',       'Operations'),
-            ('Intern',  'Vdart@123', 'David',  'Intern',  False, False, 'intern',      'Development'),
+            (
+                'Admin', 'Vdart@123', 'Super', 'Admin', True, True, 'admin',
+                'Administration'
+            ),
+            (
+                'Manager', 'Vdart@123', 'John', 'Manager', True, False,
+                'manager', 'Management'
+            ),
+            (
+                'Lead', 'Vdart@123', 'Robert', 'Lead', True, False, 'lead',
+                'Engineering'
+            ),
+            (
+                'SME', 'Vdart@123', 'Sarah', 'SME', True, False, 'sme',
+                'Subject Matter Experts'
+            ),
+            (
+                'Mentor', 'Vdart@123', 'Alice', 'Mentor', True, False,
+                'mentor', 'Training'
+            ),
+            (
+                'Intern', 'Vdart@123', 'David', 'Intern', False, False,
+                'intern', 'Development'
+            ),
         ]
 
         created_users = {}
@@ -212,5 +227,5 @@ class Command(BaseCommand):
         self.stdout.write('  Notifications created')
 
         self.stdout.write(self.style.SUCCESS('\nSeed complete! New login credentials (password: Vdart@123):'))
-        for u in created_users.keys():
-            self.stdout.write(f'  {u} ({created_users[u].profile.role})')
+        for u, user_obj in created_users.items():
+            self.stdout.write(f'  {u} ({user_obj.profile.role})')

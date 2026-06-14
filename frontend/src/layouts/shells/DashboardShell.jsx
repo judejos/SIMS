@@ -3,23 +3,28 @@ import { Menu, X, LogOut, Bell, ChevronRight, LayoutDashboard, Users, ClipboardL
 import { useNavigate } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
 import ErrorBoundary from '../../components/common/ErrorBoundary'
-
-const DASHBOARD_CONFIG = [
-  { path: '/admin', label: 'Admin', icon: LayoutDashboard, roles: ['super_admin', 'admin', 'manager'] },
-  { path: '/intern-mgmt', label: 'Intern Mgmt', icon: Users, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff'] },
-  { path: '/task', label: 'Tasks', icon: ClipboardList, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff'] },
-  { path: '/attendance', label: 'Attendance', icon: CalendarCheck, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff'] },
-  { path: '/asset', label: 'Assets', icon: Package, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'staff'] },
-  { path: '/payroll', label: 'Payroll', icon: Wallet, roles: ['super_admin', 'admin', 'manager', 'lead', 'sme', 'staff'] },
-  { path: '/intern-user', label: 'My Portal', icon: User, roles: ['intern'] },
-]
+import { ADMIN_ROLES, MANAGER_ROLES, STAFF_ROLES } from '../../utils/permissions'
 
 export default function DashboardShell({ title, navItems, defaultView, accentColor = 'bg-primary-900' }) {
   const [activeView, setActiveView] = useState(defaultView || navItems[0]?.key)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const userDashboards = DASHBOARD_CONFIG.filter(db => db.roles.includes(user?.role))
+
+  const role = user?.role || 'intern'
+  
+  const DASHBOARD_CONFIG = [
+    { path: role === 'manager' ? '/manager' : '/admin', label: role === 'manager' ? 'Management Dashboard' : 'Full System Dashboard', icon: LayoutDashboard, roles: MANAGER_ROLES },
+    { path: '/intern-mgmt', label: 'Intern Mgmt', icon: Users, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+    { path: '/mentor', label: 'Mentoring Dashboard', icon: Users, roles: ['mentor'] },
+    { path: '/task', label: ['lead', 'sme'].includes(role) ? 'Project & Task Dashboard' : 'Tasks', icon: ClipboardList, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+    { path: '/attendance', label: 'Attendance', icon: CalendarCheck, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+    { path: '/asset', label: 'Assets', icon: Package, roles: MANAGER_ROLES },
+    { path: '/payroll', label: 'Payroll', icon: Wallet, roles: ADMIN_ROLES },
+    { path: '/intern-user', label: 'Self-Service Dashboard', icon: User, roles: ['intern'] },
+  ]
+
+  const userDashboards = DASHBOARD_CONFIG.filter(db => db.roles.includes(role))
 
   const handleLogout = async () => { await logout(); navigate('/login', { replace: true }) }
   const ActiveComponent = navItems.find(n => n.key === activeView)?.component

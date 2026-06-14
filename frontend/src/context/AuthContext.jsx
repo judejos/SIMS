@@ -22,6 +22,17 @@ export function AuthProvider({ children }) {
     } else {
       setLoading(false)
     }
+
+    const handleStorageChange = (e) => {
+      if (!localStorage.getItem('access')) {
+        setUser(null)
+      } else if (e.key === 'user' && e.newValue) {
+        setUser(JSON.parse(e.newValue))
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   const login = async (credentials) => {

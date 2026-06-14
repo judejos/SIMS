@@ -4,15 +4,14 @@ from django.contrib.auth.models import User
 
 class Profile(models.Model):
     ROLE_CHOICES = (
-        ('super_admin', 'Super Admin'),
         ('admin', 'Admin'),
         ('manager', 'Manager'),
         ('lead', 'Lead'),
         ('sme', 'SME'),
         ('mentor', 'Mentor'),
-        ('staff', 'Staff'),
         ('intern', 'Intern'),
     )
+
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='intern')

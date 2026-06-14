@@ -5,8 +5,6 @@ from rest_framework.exceptions import ValidationError
 from django.utils import timezone
 from .models import Attendance, Leave, WorkSession, WorkSegment
 from .serializers import AttendanceSerializer, LeaveSerializer, WorkSessionSerializer
-from apps.permissions import IsAdminOrManager
-
 
 class AttendanceViewSet(viewsets.ModelViewSet):
     queryset = Attendance.objects.select_related('user').all()
@@ -67,9 +65,17 @@ class LeaveViewSet(viewsets.ModelViewSet):
         profile = getattr(user, 'profile', None)
         is_authorized = (
             user.is_superuser or (profile and (
-                profile.role in ('super_admin', 'admin', 'manager') or
-                (profile.role == 'mentor' and getattr(leave.user, 'intern', None) and leave.user.intern.mentor == user) or
-                (profile.role in ('lead', 'sme') and getattr(leave.user, 'profile', None) and leave.user.profile.department == profile.department)
+                profile.role in ('admin', 'manager') or
+                (
+                    profile.role == 'mentor' and
+                    getattr(leave.user, 'intern', None) and
+                    leave.user.intern.mentor == user
+                ) or
+                (
+                    profile.role in ('lead', 'sme') and
+                    getattr(leave.user, 'profile', None) and
+                    leave.user.profile.department == profile.department
+                )
             ))
         )
         if not is_authorized:
@@ -87,9 +93,17 @@ class LeaveViewSet(viewsets.ModelViewSet):
         profile = getattr(user, 'profile', None)
         is_authorized = (
             user.is_superuser or (profile and (
-                profile.role in ('super_admin', 'admin', 'manager') or
-                (profile.role == 'mentor' and getattr(leave.user, 'intern', None) and leave.user.intern.mentor == user) or
-                (profile.role in ('lead', 'sme') and getattr(leave.user, 'profile', None) and leave.user.profile.department == profile.department)
+                profile.role in ('admin', 'manager') or
+                (
+                    profile.role == 'mentor' and
+                    getattr(leave.user, 'intern', None) and
+                    leave.user.intern.mentor == user
+                ) or
+                (
+                    profile.role in ('lead', 'sme') and
+                    getattr(leave.user, 'profile', None) and
+                    leave.user.profile.department == profile.department
+                )
             ))
         )
         if not is_authorized:

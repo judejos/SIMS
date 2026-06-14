@@ -2,14 +2,13 @@ import { Navigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 
 const ROLE_HOME = {
-  super_admin: '/admin',
-  admin:   '/admin',
-  manager: '/admin',
-  lead:    '/task',
-  sme:     '/task',
-  mentor:  '/task',
-  staff:   '/task',
-  intern:  '/intern-user',
+  superadmin: '/admin',
+  admin: '/admin',
+  manager: '/manager',
+  lead: '/task',
+  sme: '/task',
+  mentor: '/mentor',
+  intern: '/intern-user',
 }
 
 export default function ProtectedRoute({ children, roles }) {

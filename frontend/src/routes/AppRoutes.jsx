@@ -3,16 +3,17 @@ import ProtectedRoute from './ProtectedRoute'
 import useAuth from '../hooks/useAuth'
 import ErrorBoundary from '../components/common/ErrorBoundary'
 import NotFound from '../pages/NotFound'
-
+import { MANAGER_ROLES, STAFF_ROLES } from '../utils/permissions'
 function SmartRedirect() {
   const { user, loading } = useAuth()
   if (loading) return null
   if (!user) return <Navigate to="/login" replace />
   if (user.role === 'intern') return <Navigate to="/intern-user" replace />
-  if (user.role === 'mentor') return <Navigate to="/task" replace />
+  if (user.role === 'mentor') return <Navigate to="/mentor" replace />
   if (user.role === 'lead' || user.role === 'sme') return <Navigate to="/task" replace />
-  if (user.role === 'staff') return <Navigate to="/task" replace />
-  return <Navigate to="/admin" replace />
+  if (user.role === 'manager') return <Navigate to="/manager" replace />
+  if (['admin', 'superadmin'].includes(user.role)) return <Navigate to="/admin" replace />
+  return <Navigate to="/login" replace />
 }
 
 import AuthLayout from '../layouts/AuthLayout'
@@ -65,7 +66,22 @@ export default function AppRoutes() {
       </Route>
 
       {/* Admin Dashboard Shell — /admin/* */}
-      <Route path="/admin" element={<ProtectedRoute roles={['super_admin', 'admin', 'manager']}><AdminLayout /></ProtectedRoute>}>
+      <Route path="/admin" element={<ProtectedRoute roles={MANAGER_ROLES}><AdminLayout /></ProtectedRoute>}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="users" element={<Users />} />
+        <Route path="interns" element={<Interns />} />
+        <Route path="departments" element={<Departments />} />
+        <Route path="payments" element={<Payments />} />
+        <Route path="teams" element={<AdminTeams />} />
+        <Route path="feedback" element={<PerformanceFeedbackPage />} />
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="profile" element={<AdminProfile />} />
+        <Route path="reports" element={<Reports />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
+
+      {/* Manager Dashboard Shell — /manager/* */}
+      <Route path="/manager" element={<ProtectedRoute roles={MANAGER_ROLES}><AdminLayout /></ProtectedRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="users" element={<Users />} />
         <Route path="interns" element={<Interns />} />
@@ -80,10 +96,13 @@ export default function AppRoutes() {
       </Route>
 
       {/* Intern Management Dashboard — /intern-mgmt/* */}
-      <Route path="/intern-mgmt/*" element={<ProtectedRoute roles={['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff']}><InternDashboardShell /></ProtectedRoute>} />
+      <Route path="/intern-mgmt/*" element={<ProtectedRoute roles={STAFF_ROLES}><InternDashboardShell /></ProtectedRoute>} />
+
+      {/* Mentoring Dashboard — /mentor/* */}
+      <Route path="/mentor/*" element={<ProtectedRoute roles={STAFF_ROLES}><InternDashboardShell /></ProtectedRoute>} />
 
       {/* Intern Dashboard (staff) — /intern/* */}
-      <Route path="/intern" element={<ProtectedRoute roles={['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff']}><InternLayout /></ProtectedRoute>}>
+      <Route path="/intern" element={<ProtectedRoute roles={STAFF_ROLES}><InternLayout /></ProtectedRoute>}>
         <Route index element={<InternDashboard />} />
         <Route path="tasks" element={<InternTasks />} />
         <Route path="attendance" element={<InternAttendance />} />
@@ -94,16 +113,16 @@ export default function AppRoutes() {
       </Route>
 
       {/* Task Dashboard Shell — /task/* */}
-      <Route path="/task/*" element={<ProtectedRoute roles={['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff']}><TaskDashboardShell /></ProtectedRoute>} />
+      <Route path="/task/*" element={<ProtectedRoute roles={STAFF_ROLES}><TaskDashboardShell /></ProtectedRoute>} />
 
       {/* Attendance Dashboard Shell — /attendance/* */}
-      <Route path="/attendance/*" element={<ProtectedRoute roles={['super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff']}><AttendanceDashboardShell /></ProtectedRoute>} />
+      <Route path="/attendance/*" element={<ProtectedRoute roles={STAFF_ROLES}><AttendanceDashboardShell /></ProtectedRoute>} />
 
       {/* Asset Dashboard Shell — /asset/* */}
-      <Route path="/asset/*" element={<ProtectedRoute roles={['super_admin', 'admin', 'manager', 'lead', 'sme', 'staff']}><AssetDashboardShell /></ProtectedRoute>} />
+      <Route path="/asset/*" element={<ProtectedRoute roles={STAFF_ROLES}><AssetDashboardShell /></ProtectedRoute>} />
 
       {/* Payroll Dashboard Shell — /payroll/* */}
-      <Route path="/payroll/*" element={<ProtectedRoute roles={['super_admin', 'admin', 'manager', 'lead', 'sme', 'staff']}><PayrollDashboardShell /></ProtectedRoute>} />
+      <Route path="/payroll/*" element={<ProtectedRoute roles={STAFF_ROLES}><PayrollDashboardShell /></ProtectedRoute>} />
 
       {/* Intern Self-Service — /intern-user/* */}
       <Route path="/intern-user/*" element={<ProtectedRoute roles={['intern']}><InternUserDashboardShell /></ProtectedRoute>} />

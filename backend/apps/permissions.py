@@ -1,16 +1,8 @@
 from rest_framework.permissions import BasePermission
 
-ADMIN_ROLES = ('super_admin', 'admin')
-MANAGER_ROLES = ('super_admin', 'admin', 'manager')
-STAFF_ROLES = ('super_admin', 'admin', 'manager', 'lead', 'sme', 'mentor', 'staff')
-
-
-class IsSuperAdmin(BasePermission):
-    def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
-        profile = getattr(request.user, 'profile', None)
-        return request.user.is_superuser or (profile and profile.role == 'super_admin')
+ADMIN_ROLES = ('superadmin', 'admin')
+MANAGER_ROLES = ('superadmin', 'admin', 'manager')
+STAFF_ROLES = ('superadmin', 'admin', 'manager', 'lead', 'sme', 'mentor')
 
 
 class IsAdminOrManager(BasePermission):
@@ -30,7 +22,7 @@ class IsAdminOnly(BasePermission):
 
 
 class IsStaffOrAbove(BasePermission):
-    """Lead, SME, Mentor, Staff, Manager, Admin, Super Admin"""
+    """Lead, SME, Mentor, Manager, Admin"""
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
@@ -43,7 +35,7 @@ class IsMentor(BasePermission):
         if not request.user.is_authenticated:
             return False
         profile = getattr(request.user, 'profile', None)
-        return profile and profile.role in ('mentor', 'lead', 'manager', 'admin', 'super_admin')
+        return profile and profile.role in STAFF_ROLES
 
 
 class IsOwnerOrAdminOrManager(BasePermission):
@@ -67,5 +59,5 @@ class IsAdminOrManagerOrStaff(BasePermission):
         if not request.user.is_authenticated:
             return False
         profile = getattr(request.user, 'profile', None)
-        return request.user.is_superuser or (profile and profile.role in ('super_admin', 'admin', 'manager', 'staff'))
+        return request.user.is_superuser or (profile and profile.role in STAFF_ROLES)
 

@@ -5,23 +5,28 @@ import {
   FolderKanban, Wallet, Package, FileText, MessageSquare, Bot,
   UserPlus, User, ChevronRight
 } from 'lucide-react'
+import { ADMIN_ROLES, MANAGER_ROLES, STAFF_ROLES } from '../../utils/permissions'
 
-const adminLinks = [
-  { to: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/admin/users', icon: Users, label: 'Staff' },
-  { to: '/admin/interns', icon: UserCheck, label: 'Interns' },
-  { to: '/admin/departments', icon: Building2, label: 'Departments' },
-  { to: '/admin/teams', icon: UsersRound, label: 'Teams' },
-  { to: '/admin/payments', icon: CreditCard, label: 'Payments' },
-  { to: '/admin/feedback', icon: MessageSquare, label: 'Feedback' },
-  { to: '/admin/register', icon: UserPlus, label: 'Register Staff' },
-  { to: '/admin/reports', icon: BarChart3, label: 'Reports' },
-  { to: '/admin/settings', icon: Settings, label: 'Settings' },
-  { to: '/admin/profile', icon: User, label: 'My Profile' },
-]
+const getAdminLinks = (role) => {
+  const base = role === 'manager' ? '/manager' : '/admin'
+  const links = [
+    { to: base, icon: LayoutDashboard, label: role === 'manager' ? 'Management Dashboard' : 'Full System Dashboard', roles: MANAGER_ROLES },
+    { to: `${base}/users`, icon: Users, label: 'Staff', roles: MANAGER_ROLES },
+    { to: `${base}/interns`, icon: UserCheck, label: 'Interns', roles: MANAGER_ROLES },
+    { to: `${base}/departments`, icon: Building2, label: 'Departments', roles: MANAGER_ROLES },
+    { to: `${base}/teams`, icon: UsersRound, label: 'Teams', roles: MANAGER_ROLES },
+    { to: `${base}/payments`, icon: CreditCard, label: 'Payments', roles: ADMIN_ROLES },
+    { to: `${base}/feedback`, icon: MessageSquare, label: 'Feedback', roles: MANAGER_ROLES },
+    { to: `${base}/register`, icon: UserPlus, label: 'Register Staff', roles: ADMIN_ROLES },
+    { to: `${base}/reports`, icon: BarChart3, label: 'Reports', roles: MANAGER_ROLES },
+    { to: `${base}/settings`, icon: Settings, label: 'Settings', roles: ADMIN_ROLES },
+    { to: `${base}/profile`, icon: User, label: 'My Profile', roles: MANAGER_ROLES },
+  ]
+  return links.filter(link => link.roles.includes(role))
+}
 
-const internLinks = [
-  { to: '/intern-user', icon: LayoutDashboard, label: 'Dashboard' },
+const getInternLinks = (role) => [
+  { to: '/intern-user', icon: LayoutDashboard, label: 'Self-Service Dashboard' },
   { to: '/intern-user', icon: CalendarCheck, label: 'Attendance' },
   { to: '/intern-user', icon: ClipboardList, label: 'Tasks' },
   { to: '/intern-user', icon: FileText, label: 'Documents' },
@@ -29,30 +34,43 @@ const internLinks = [
   { to: '/intern-user', icon: User, label: 'Profile' },
 ]
 
-const GROUP_LINKS = [
-  { label: 'Dashboards', links: [
-    { to: '/admin', icon: LayoutDashboard, label: 'Admin' },
-    { to: '/intern-mgmt', icon: UserCheck, label: 'Intern Mgmt' },
-    { to: '/task', icon: ClipboardList, label: 'Tasks' },
-    { to: '/attendance', icon: CalendarCheck, label: 'Attendance' },
-    { to: '/asset', icon: Package, label: 'Assets' },
-    { to: '/payroll', icon: Wallet, label: 'Payroll' },
-  ]},
+const getDashboardLinks = (role) => [
+  { to: role === 'manager' ? '/manager' : '/admin', icon: LayoutDashboard, label: role === 'manager' ? 'Management Dashboard' : 'Full System Dashboard', roles: MANAGER_ROLES },
+  { to: '/intern-mgmt', icon: UserCheck, label: 'Intern Mgmt', roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+  { to: '/mentor', icon: UserCheck, label: 'Mentoring Dashboard', roles: ['mentor'] },
+  { to: '/task', icon: ClipboardList, label: ['lead', 'sme'].includes(role) ? 'Project & Task Dashboard' : 'Tasks', roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+  { to: '/attendance', icon: CalendarCheck, label: 'Attendance', roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+  { to: '/asset', icon: Package, label: 'Assets', roles: MANAGER_ROLES },
+  { to: '/payroll', icon: Wallet, label: 'Payroll', roles: ADMIN_ROLES },
 ]
 
 export default function Sidebar({ role }) {
-  const isAdminLike = ['super_admin', 'admin', 'manager'].includes(role)
-  const links = isAdminLike ? adminLinks : internLinks
+  const isManagerOrAdmin = MANAGER_ROLES.includes(role)
+  const isStaff = STAFF_ROLES.includes(role) && !isManagerOrAdmin
+  const isIntern = role === 'intern'
+
+  let primaryLinks = []
+  if (isManagerOrAdmin) {
+    primaryLinks = getAdminLinks(role)
+  } else if (isIntern) {
+    primaryLinks = getInternLinks(role)
+  } else if (isStaff) {
+    primaryLinks = getDashboardLinks(role).filter(link => link.roles.includes(role))
+  }
+
+  const otherDashboards = isManagerOrAdmin 
+    ? getDashboardLinks(role).filter(link => !['/admin', '/manager'].includes(link.to) && link.roles.includes(role))
+    : []
 
   return (
-    <aside className="w-64 bg-primary-900 text-white flex flex-col flex-shrink-0">
+    <aside className="w-64 bg-primary-900 text-white flex flex-col flex-shrink-0 h-full">
       <div className="p-5 border-b border-primary-700">
         <h1 className="text-xl font-bold tracking-wide">SIMS</h1>
         <p className="text-xs text-primary-300 mt-0.5">Intern Management System</p>
       </div>
 
       <nav className="flex-1 overflow-y-auto py-3">
-        {links.map(({ to, icon: Icon, label }) => (
+        {primaryLinks.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to + label}
             to={to}
@@ -70,12 +88,12 @@ export default function Sidebar({ role }) {
           </NavLink>
         ))}
 
-        {isAdminLike && (
+        {otherDashboards.length > 0 && (
           <>
             <div className="px-5 pt-4 pb-1">
               <p className="text-xs text-primary-400 uppercase tracking-wider font-medium">Other Dashboards</p>
             </div>
-            {GROUP_LINKS[0].links.slice(1).map(({ to, icon: Icon, label }) => (
+            {otherDashboards.map(({ to, icon: Icon, label }) => (
               <NavLink
                 key={to}
                 to={to}
