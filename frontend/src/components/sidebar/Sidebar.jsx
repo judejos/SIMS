@@ -38,13 +38,13 @@ const getInternLinks = (role) => [
 
 const getDashboardLinks = (role) => [
   { to: role === 'manager' ? '/manager' : '/admin', icon: LayoutDashboard, label: role === 'manager' ? 'Management Dashboard' : 'Full System Dashboard', roles: MANAGER_ROLES },
-  { to: '/intern-mgmt', icon: UserCheck, label: 'Intern Mgmt', roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+  { to: '/intern-mgmt', icon: UserCheck, label: 'Intern Mgmt', roles: ['admin', 'superadmin', 'manager', 'lead'] },
   { to: '/mentor', icon: UserCheck, label: 'Mentoring Dashboard', roles: ['mentor'] },
-  { to: '/task', icon: ClipboardList, label: ['lead', 'sme'].includes(role) ? 'Project & Task Dashboard' : 'Tasks', roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
-  { to: '/attendance', icon: CalendarCheck, label: 'Attendance', roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+  { to: '/task', icon: ClipboardList, label: role === 'lead' ? 'Project & Task Dashboard' : 'Tasks', roles: ['admin', 'superadmin', 'manager', 'lead'] },
+  { to: '/attendance', icon: CalendarCheck, label: 'Attendance', roles: ['admin', 'superadmin', 'manager', 'lead'] },
   { to: '/asset', icon: Package, label: 'Assets', roles: MANAGER_ROLES },
   { to: '/payroll', icon: Wallet, label: 'Payroll', roles: ADMIN_ROLES },
-  { to: '/ai', icon: Bot, label: 'AI Center', roles: ['admin', 'superadmin', 'manager', 'lead', 'sme', 'mentor'] },
+  { to: '/ai', icon: Bot, label: 'AI Center', roles: ['admin', 'superadmin', 'manager', 'lead', 'mentor'] },
 ]
 
 export default function Sidebar({ role }) {

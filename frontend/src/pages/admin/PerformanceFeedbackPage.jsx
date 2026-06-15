@@ -9,8 +9,12 @@ import ConfirmModal from '../../components/modals/ConfirmModal'
 import Modal from '../../components/modals/Modal'
 import Button from '../../components/common/Button'
 import PageHeader from '../../components/common/PageHeader'
+import useAuth from '../../hooks/useAuth'
+import { canWrite } from '../../utils/permissions'
 
 export default function PerformanceFeedbackPage() {
+  const { user: me } = useAuth()
+  const writable = canWrite(me?.role)
   const [feedbacks, setFeedbacks] = useState([])
   const [deletingId, setDeletingId] = useState(null)
   const [users, setUsers] = useState([])
@@ -45,14 +49,14 @@ export default function PerformanceFeedbackPage() {
     )},
     { key: 'comments', label: 'Comments', render: r => r.comments || '—' },
     { key: 'created_at', label: 'Date', render: r => r.created_at?.slice(0, 10) },
-    { key: 'actions', label: '', render: r => (
+    ...(writable ? [{ key: 'actions', label: '', render: r => (
       <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
-    )},
+    )}] : []),
   ]
 
   return (
     <div>
-      <PageHeader title="Performance Feedback" subtitle="All feedback submissions" action={<Button onClick={() => setModal(true)}><Plus size={15} className="inline mr-1" />Add Feedback</Button>} />
+      <PageHeader title="Performance Feedback" subtitle="All feedback submissions" action={writable ? <Button onClick={() => setModal(true)}><Plus size={15} className="inline mr-1" />Add Feedback</Button> : null} />
       <div className="bg-white rounded-xl shadow-sm"><Table columns={columns} data={feedbacks} loading={loading} /></div>
       
       <ConfirmModal 

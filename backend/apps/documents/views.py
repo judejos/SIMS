@@ -22,11 +22,15 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'destroy':
-            return [IsAdminOrManager()]
+            from apps.permissions import DenyAdminWrite
+            return [IsAdminOrManager(), DenyAdminWrite()]
         return [permissions.IsAuthenticated()]
 
     @action(detail=True, methods=['post'], permission_classes=[IsAdminOrManager])
     def approve(self, request, pk=None):
+        profile = getattr(request.user, 'profile', None)
+        if profile and profile.role == 'admin':
+            return Response({'detail': 'Admin has view-only access'}, status=403)
         doc = self.get_object()
         doc.status = 'approved'
         doc.reviewed_by = request.user
@@ -36,6 +40,9 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[IsAdminOrManager])
     def reject(self, request, pk=None):
+        profile = getattr(request.user, 'profile', None)
+        if profile and profile.role == 'admin':
+            return Response({'detail': 'Admin has view-only access'}, status=403)
         doc = self.get_object()
         doc.status = 'rejected'
         doc.reviewed_by = request.user

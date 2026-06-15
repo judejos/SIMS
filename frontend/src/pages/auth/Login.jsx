@@ -8,9 +8,7 @@ const ROLE_REDIRECT = {
   admin:   '/admin',
   manager: '/admin',
   lead:    '/task',
-  sme:     '/task',
   mentor:  '/task',
-  staff:   '/task',
   intern:  '/intern-user',
 }
 

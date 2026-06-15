@@ -17,7 +17,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy', 'assign_team', 'assign_team_lead'):
-            return [IsAdminOrManager()]
+            from apps.permissions import DenyAdminWrite
+            return [IsAdminOrManager(), DenyAdminWrite()]
         return [permissions.IsAuthenticated()]
 
     @action(detail=True, methods=['post'], url_path='assign-team')

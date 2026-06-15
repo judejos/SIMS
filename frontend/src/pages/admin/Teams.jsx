@@ -11,8 +11,12 @@ import Button from '../../components/common/Button'
 import PageHeader from '../../components/common/PageHeader'
 import SearchBar from '../../components/common/SearchBar'
 import useSearch from '../../hooks/useSearch'
+import useAuth from '../../hooks/useAuth'
+import { canWrite } from '../../utils/permissions'
 
 export default function Teams() {
+  const { user: me } = useAuth()
+  const writable = canWrite(me?.role)
   const [teams, setTeams] = useState([])
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -75,14 +79,14 @@ export default function Teams() {
     { key: 'lead', label: 'Team Lead', render: r => getLeadName(r.lead) },
     { key: 'members', label: 'Members', render: r => <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-medium">{r.members?.length ?? 0} members</span> },
     { key: 'created_at', label: 'Created', render: r => r.created_at?.slice(0, 10) },
-    {
+    ...(writable ? [{
       key: 'actions', label: '', render: r => (
         <div className="flex gap-2">
           <button onClick={() => openEdit(r)} className="text-blue-500 hover:text-blue-700"><Pencil size={15} /></button>
           <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
         </div>
       )
-    },
+    }] : []),
   ]
 
   return (
@@ -90,7 +94,7 @@ export default function Teams() {
       <PageHeader
         title="Teams"
         subtitle={`${filtered.length} of ${teams.length} teams`}
-        action={<Button onClick={openAdd}><Plus size={15} className="inline mr-1" />Add Team</Button>}
+        action={writable ? <Button onClick={openAdd}><Plus size={15} className="inline mr-1" />Add Team</Button> : null}
       />
 
       <div className="bg-white rounded-xl shadow-sm">

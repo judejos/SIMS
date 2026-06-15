@@ -25,7 +25,7 @@ class InternViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(user=user)
             elif profile.role == 'mentor':
                 qs = qs.filter(mentor=user)
-            elif profile.role in ('lead', 'sme'):
+            elif profile.role == 'lead':
                 qs = qs.filter(user__profile__department=profile.department)
         return qs
 
@@ -33,7 +33,8 @@ class InternViewSet(viewsets.ModelViewSet):
         if self.action == 'submit_onboarding':
             return [permissions.AllowAny()]
         if self.action in ('create', 'update', 'partial_update', 'destroy', 'approve', 'reject'):
-            return [IsAdminOrManager()]
+            from apps.permissions import DenyAdminWrite
+            return [IsAdminOrManager(), DenyAdminWrite()]
         return [permissions.IsAuthenticated()]
 
     @action(detail=False, methods=['post'], url_path='onboarding/submit')

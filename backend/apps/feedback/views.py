@@ -24,7 +24,7 @@ class FeedbackViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(given_to=user)
             elif profile.role == 'mentor':
                 qs = qs.filter(Q(given_by=user) | Q(given_to__intern__mentor=user))
-            elif profile.role in ('lead', 'sme'):
+            elif profile.role == 'lead':
                 qs = qs.filter(Q(given_to__profile__department=profile.department) | Q(given_by__profile__department=profile.department))
         return qs
 

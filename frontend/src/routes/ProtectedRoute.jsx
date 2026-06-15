@@ -6,7 +6,6 @@ const ROLE_HOME = {
   admin: '/admin',
   manager: '/manager',
   lead: '/task',
-  sme: '/task',
   mentor: '/mentor',
   intern: '/intern-user',
 }

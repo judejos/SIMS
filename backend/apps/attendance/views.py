@@ -24,14 +24,14 @@ class AttendanceViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(user=user)
             elif profile.role == 'mentor':
                 qs = qs.filter(user__intern__mentor=user)
-            elif profile.role in ('lead', 'sme'):
+            elif profile.role == 'lead':
                 qs = qs.filter(user__profile__department=profile.department)
         return qs
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
-            from apps.permissions import IsAdminOrManagerOrStaff
-            return [IsAdminOrManagerOrStaff()]
+            from apps.permissions import IsAdminOrManagerOrStaff, DenyAdminWrite
+            return [IsAdminOrManagerOrStaff(), DenyAdminWrite()]
         return [permissions.IsAuthenticated()]
 
 
@@ -51,7 +51,7 @@ class LeaveViewSet(viewsets.ModelViewSet):
                 return qs.filter(user=user)
             elif profile.role == 'mentor':
                 return qs.filter(user__intern__mentor=user)
-            elif profile.role in ('lead', 'sme'):
+            elif profile.role == 'lead':
                 return qs.filter(user__profile__department=profile.department)
         return qs
 
@@ -63,16 +63,19 @@ class LeaveViewSet(viewsets.ModelViewSet):
         leave = self.get_object()
         user = request.user
         profile = getattr(user, 'profile', None)
+        # Admin is view-only — cannot approve leaves
+        if profile and profile.role == 'admin':
+            return Response({'detail': 'Admin has view-only access'}, status=403)
         is_authorized = (
             user.is_superuser or (profile and (
-                profile.role in ('admin', 'manager') or
+                profile.role == 'manager' or
                 (
                     profile.role == 'mentor' and
                     getattr(leave.user, 'intern', None) and
                     leave.user.intern.mentor == user
                 ) or
                 (
-                    profile.role in ('lead', 'sme') and
+                    profile.role == 'lead' and
                     getattr(leave.user, 'profile', None) and
                     leave.user.profile.department == profile.department
                 )
@@ -91,16 +94,19 @@ class LeaveViewSet(viewsets.ModelViewSet):
         leave = self.get_object()
         user = request.user
         profile = getattr(user, 'profile', None)
+        # Admin is view-only — cannot reject leaves
+        if profile and profile.role == 'admin':
+            return Response({'detail': 'Admin has view-only access'}, status=403)
         is_authorized = (
             user.is_superuser or (profile and (
-                profile.role in ('admin', 'manager') or
+                profile.role == 'manager' or
                 (
                     profile.role == 'mentor' and
                     getattr(leave.user, 'intern', None) and
                     leave.user.intern.mentor == user
                 ) or
                 (
-                    profile.role in ('lead', 'sme') and
+                    profile.role == 'lead' and
                     getattr(leave.user, 'profile', None) and
                     leave.user.profile.department == profile.department
                 )

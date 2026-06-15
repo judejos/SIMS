@@ -13,8 +13,12 @@ import Badge from '../../components/common/Badge'
 import PageHeader from '../../components/common/PageHeader'
 import SearchBar from '../../components/common/SearchBar'
 import useSearch from '../../hooks/useSearch'
+import useAuth from '../../hooks/useAuth'
+import { canWrite } from '../../utils/permissions'
 
 export default function Interns() {
+  const { user: me } = useAuth()
+  const writable = canWrite(me?.role)
   const [interns, setInterns] = useState([])
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -88,7 +92,7 @@ export default function Interns() {
     { key: 'start_date', label: 'Start Date', render: r => r.start_date || '—' },
     { key: 'status', label: 'Status', render: r => <Badge value={r.status} /> },
     {
-      key: 'actions', label: 'Actions', render: r => (
+      key: 'actions', label: 'Actions', render: r => !writable ? null : (
         <div className="flex gap-2">
           {r.status === 'pending' && (
             <button onClick={() => setApprovingId(r.id)} className="text-green-600 hover:text-green-800" title="Approve Onboarding"><CheckCircle size={15} /></button>
@@ -124,7 +128,7 @@ export default function Interns() {
       <PageHeader 
         title="Interns" 
         subtitle={`${filtered.length} of ${interns.length} interns`} 
-        action={
+        action={writable ? (
           <div className="flex gap-2">
             <input type="file" accept=".csv" className="hidden" ref={fileInputRef} onChange={handleFileUpload} />
             <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>
@@ -132,7 +136,7 @@ export default function Interns() {
             </Button>
             <Button onClick={openAdd}><Plus size={16} className="inline mr-1" />Add Intern</Button>
           </div>
-        } 
+        ) : null} 
       />
       <div className="bg-white rounded-xl shadow-sm">
         <div className="px-5 py-3 border-b">

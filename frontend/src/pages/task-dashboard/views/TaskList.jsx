@@ -12,9 +12,13 @@ import Badge from '../../../components/common/Badge'
 import PageHeader from '../../../components/common/PageHeader'
 import SearchBar from '../../../components/common/SearchBar'
 import useSearch from '../../../hooks/useSearch'
+import useAuth from '../../../hooks/useAuth'
+import { canWrite } from '../../../utils/permissions'
 import KanbanBoard from '../../../components/kanban/KanbanBoard'
 
 export default function TaskList() {
+  const { user: me } = useAuth()
+  const writable = canWrite(me?.role)
   const [tasks, setTasks] = useState([])
   const [deletingId, setDeletingId] = useState(null)
   const [users, setUsers] = useState([])
@@ -62,12 +66,12 @@ export default function TaskList() {
     { key: 'priority', label: 'Priority', render: r => <Badge value={r.priority} /> },
     { key: 'status', label: 'Status', render: r => <Badge value={r.status} /> },
     { key: 'due_date', label: 'Due', render: r => r.due_date || '—' },
-    { key: 'actions', label: '', render: r => (
+    ...(writable ? [{ key: 'actions', label: '', render: r => (
       <div className="flex gap-2">
         <button onClick={() => openEdit(r)} className="text-blue-500 hover:text-blue-700"><Pencil size={15} /></button>
         <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
       </div>
-    )},
+    )}] : []),
   ]
 
   return (
@@ -93,7 +97,7 @@ export default function TaskList() {
                 <ListIcon size={18} />
               </button>
             </div>
-            <Button onClick={openAdd}><Plus size={15} className="inline mr-1" />New Task</Button>
+            {writable && <Button onClick={openAdd}><Plus size={15} className="inline mr-1" />New Task</Button>}
           </div>
         } 
       />

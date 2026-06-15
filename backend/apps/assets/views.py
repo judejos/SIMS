@@ -22,12 +22,12 @@ class AssetViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(assigned_to=user)
             elif profile.role == 'mentor':
                 qs = qs.filter(assigned_to__intern__mentor=user)
-            elif profile.role in ('lead', 'sme'):
+            elif profile.role == 'lead':
                 qs = qs.filter(assigned_to__profile__department=profile.department)
         return qs
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
-            from apps.permissions import IsAdminOrManagerOrStaff
-            return [IsAdminOrManagerOrStaff()]
+            from apps.permissions import IsAdminOrManagerOrStaff, DenyAdminWrite
+            return [IsAdminOrManagerOrStaff(), DenyAdminWrite()]
         return [permissions.IsAuthenticated()]

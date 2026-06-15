@@ -25,14 +25,14 @@ class PayrollViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(employee=user)
             elif profile.role == 'mentor':
                 qs = qs.filter(employee__intern__mentor=user)
-            elif profile.role in ('lead', 'sme'):
+            elif profile.role == 'lead':
                 qs = qs.filter(employee__profile__department=profile.department)
         return qs
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
-            from apps.permissions import IsAdminOrManagerOrStaff
-            return [IsAdminOrManagerOrStaff()]
+            from apps.permissions import IsAdminOrManagerOrStaff, DenyAdminWrite
+            return [IsAdminOrManagerOrStaff(), DenyAdminWrite()]
         return [permissions.IsAuthenticated()]
 
 
@@ -54,14 +54,14 @@ class InternPaymentViewSet(viewsets.ModelViewSet):
                 return qs.filter(intern=user)
             elif profile.role == 'mentor':
                 return qs.filter(intern__intern__mentor=user)
-            elif profile.role in ('lead', 'sme'):
+            elif profile.role == 'lead':
                 return qs.filter(intern__profile__department=profile.department)
         return qs
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
-            from apps.permissions import IsAdminOrManagerOrStaff
-            return [IsAdminOrManagerOrStaff()]
+            from apps.permissions import IsAdminOrManagerOrStaff, DenyAdminWrite
+            return [IsAdminOrManagerOrStaff(), DenyAdminWrite()]
         return [permissions.IsAuthenticated()]
 
     # GET /api/intern-payments/summary/

@@ -16,6 +16,8 @@ import PageHeader from '../../components/common/PageHeader'
 import SearchBar from '../../components/common/SearchBar'
 import StatCard from '../../components/cards/StatCard'
 import useSearch from '../../hooks/useSearch'
+import useAuth from '../../hooks/useAuth'
+import { canWrite } from '../../utils/permissions'
 
 const STATUS_COLORS = {
   PAID:           'bg-green-100 text-green-700',
@@ -33,6 +35,8 @@ function StatusBadge({ value }) {
 }
 
 export default function Payments() {
+  const { user: me } = useAuth()
+  const writable = canWrite(me?.role)
   const [payments, setPayments] = useState([])
   const [deletingId, setDeletingId] = useState(null)
   const [users, setUsers] = useState([])
@@ -99,12 +103,12 @@ export default function Payments() {
     { key: 'payment_status', label: 'Status', render: r => <StatusBadge value={r.payment_status} /> },
     { key: 'payment_date', label: 'Date', render: r => r.payment_date || '—' },
     { key: 'payment_method', label: 'Method', render: r => r.payment_method || '—' },
-    { key: 'actions', label: '', render: r => (
+    ...(writable ? [{ key: 'actions', label: '', render: r => (
       <div className="flex gap-2">
         <button onClick={() => openEdit(r)} className="text-blue-500 hover:text-blue-700"><Pencil size={15} /></button>
         <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
       </div>
-    )},
+    )}] : []),
   ]
 
   return (
@@ -115,7 +119,7 @@ export default function Payments() {
         action={
           <div className="flex gap-2">
             <Button variant="secondary" onClick={exportCSV}><Download size={15} className="inline mr-1" />Export CSV</Button>
-            <Button onClick={openAdd}><Plus size={15} className="inline mr-1" />Add Payment</Button>
+            {writable && <Button onClick={openAdd}><Plus size={15} className="inline mr-1" />Add Payment</Button>}
           </div>
         }
       />

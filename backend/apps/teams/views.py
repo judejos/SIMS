@@ -17,7 +17,8 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ('create', 'update', 'partial_update', 'destroy', 'assign_interns', 'remove_intern'):
-            return [IsAdminOrManager()]
+            from apps.permissions import DenyAdminWrite
+            return [IsAdminOrManager(), DenyAdminWrite()]
         return [permissions.IsAuthenticated()]
 
     @action(detail=True, methods=['post'], url_path='assign-interns')

@@ -7,7 +7,6 @@ class Profile(models.Model):
         ('admin', 'Admin'),
         ('manager', 'Manager'),
         ('lead', 'Lead'),
-        ('sme', 'SME'),
         ('mentor', 'Mentor'),
         ('intern', 'Intern'),
     )

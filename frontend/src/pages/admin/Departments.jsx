@@ -10,8 +10,12 @@ import Button from '../../components/common/Button'
 import PageHeader from '../../components/common/PageHeader'
 import SearchBar from '../../components/common/SearchBar'
 import useSearch from '../../hooks/useSearch'
+import useAuth from '../../hooks/useAuth'
+import { canWrite } from '../../utils/permissions'
 
 export default function Departments() {
+  const { user: me } = useAuth()
+  const writable = canWrite(me?.role)
   const [departments, setDepartments] = useState([])
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
@@ -57,14 +61,14 @@ export default function Departments() {
     },
     { key: 'name', label: 'Department Name' },
     { key: 'id', label: 'ID', render: r => <span className="text-xs text-gray-400">#{r.id}</span> },
-    {
+    ...(writable ? [{
       key: 'actions', label: '', render: r => (
         <div className="flex gap-2">
           <button onClick={() => openEdit(r)} className="text-blue-500 hover:text-blue-700"><Pencil size={15} /></button>
           <button onClick={() => setDeletingId(r.id)} className="text-red-500 hover:text-red-700"><Trash2 size={15} /></button>
         </div>
       )
-    },
+    }] : []),
   ]
 
   return (
@@ -72,7 +76,7 @@ export default function Departments() {
       <PageHeader
         title="Departments"
         subtitle={`${filtered.length} of ${departments.length} departments`}
-        action={<Button onClick={openAdd}><Plus size={15} className="inline mr-1" />Add Department</Button>}
+        action={writable ? <Button onClick={openAdd}><Plus size={15} className="inline mr-1" />Add Department</Button> : null}
       />
 
       <div className="bg-white rounded-xl shadow-sm">

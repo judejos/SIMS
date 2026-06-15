@@ -47,10 +47,7 @@ class Command(BaseCommand):
                 'Lead', 'Vdart@123', 'Robert', 'Lead', True, False, 'lead',
                 'Engineering'
             ),
-            (
-                'SME', 'Vdart@123', 'Sarah', 'SME', True, False, 'sme',
-                'Subject Matter Experts'
-            ),
+
             (
                 'Mentor', 'Vdart@123', 'Alice', 'Mentor', True, False,
                 'mentor', 'Training'
@@ -122,7 +119,7 @@ class Command(BaseCommand):
             ('Design Login Page', 'Create Figma mockups', 'Intern', 'Lead', 'high', 'completed'),
             ('Implement Attendance Module', 'Build attendance API', 'Intern', 'Lead', 'high', 'in_progress'),
             ('Create User Dashboard UI', 'React components', 'Intern', 'Mentor', 'medium', 'in_progress'),
-            ('Write API Documentation', 'Document all endpoints', 'Intern', 'SME', 'medium', 'pending'),
+            ('Write API Documentation', 'Document all endpoints', 'Intern', 'Lead', 'medium', 'pending'),
         ]
         for title, desc, assignee, assigner, priority, status in task_data:
             Task.objects.get_or_create(

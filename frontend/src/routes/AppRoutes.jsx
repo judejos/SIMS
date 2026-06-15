@@ -10,7 +10,7 @@ function SmartRedirect() {
   if (!user) return <Navigate to="/login" replace />
   if (user.role === 'intern') return <Navigate to="/intern-user" replace />
   if (user.role === 'mentor') return <Navigate to="/mentor" replace />
-  if (user.role === 'lead' || user.role === 'sme') return <Navigate to="/task" replace />
+  if (user.role === 'lead') return <Navigate to="/task" replace />
   if (user.role === 'manager') return <Navigate to="/manager" replace />
   if (['admin', 'superadmin'].includes(user.role)) return <Navigate to="/admin" replace />
   return <Navigate to="/login" replace />

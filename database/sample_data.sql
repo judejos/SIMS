@@ -28,7 +28,7 @@ VALUES
     (1, 'super_admin', '9000000001', 'Administration',       '2024-01-01'),
     (2, 'manager',     '9000000002', 'Management',           '2024-01-02'),
     (3, 'lead',        '9000000003', 'Engineering',          '2024-01-02'),
-    (4, 'sme',         '9000000004', 'Subject Matter Experts','2024-01-10'),
+    (4, 'lead',        '9000000004', 'Subject Matter Experts','2024-01-10'),
     (5, 'mentor',      '9000000005', 'Training',             '2024-01-10'),
     (6, 'staff',       '9000000006', 'Operations',           '2024-01-15'),
     (7, 'intern',      '9000000007', 'Development',          '2024-01-15');

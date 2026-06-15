@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Users, UserCheck, Wallet, CalendarCheck, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Users, UserCheck, Wallet, CalendarCheck, TrendingUp, AlertTriangle, Eye } from 'lucide-react'
 import StatCard from '../../components/cards/StatCard'
 import api from '../../services/api'
+import useAuth from '../../hooks/useAuth'
+import { isAdminViewOnly } from '../../utils/permissions'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line
@@ -10,6 +12,8 @@ import {
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
 export default function AdminDashboard() {
+  const { user } = useAuth()
+  const viewOnly = isAdminViewOnly(user?.role)
   const [stats, setStats] = useState(null)
   const [interns, setInterns] = useState([])
   const [attendance, setAttendance] = useState([])
@@ -75,7 +79,14 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+          {viewOnly && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+              <Eye size={13} /> View Only
+            </span>
+          )}
+        </div>
         <span className="text-sm text-gray-400">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
       </div>
 

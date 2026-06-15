@@ -15,13 +15,13 @@ export default function DashboardShell({ title, navItems, defaultView, accentCol
   
   const DASHBOARD_CONFIG = [
     { path: role === 'manager' ? '/manager' : '/admin', label: role === 'manager' ? 'Management Dashboard' : 'Full System Dashboard', icon: LayoutDashboard, roles: MANAGER_ROLES },
-    { path: '/intern-mgmt', label: 'Intern Mgmt', icon: UserCheck, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+    { path: '/intern-mgmt', label: 'Intern Mgmt', icon: UserCheck, roles: ['admin', 'superadmin', 'manager', 'lead'] },
     { path: '/mentor', label: 'Mentoring Dashboard', icon: UserCheck, roles: ['mentor'] },
-    { path: '/task', label: ['lead', 'sme'].includes(role) ? 'Project & Task Dashboard' : 'Tasks', icon: ClipboardList, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
-    { path: '/attendance', label: 'Attendance', icon: CalendarCheck, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme'] },
+    { path: '/task', label: role === 'lead' ? 'Project & Task Dashboard' : 'Tasks', icon: ClipboardList, roles: ['admin', 'superadmin', 'manager', 'lead'] },
+    { path: '/attendance', label: 'Attendance', icon: CalendarCheck, roles: ['admin', 'superadmin', 'manager', 'lead'] },
     { path: '/asset', label: 'Assets', icon: Package, roles: MANAGER_ROLES },
     { path: '/payroll', label: 'Payroll', icon: Wallet, roles: ADMIN_ROLES },
-    { path: '/ai', label: 'AI Center', icon: Bot, roles: ['admin', 'superadmin', 'manager', 'lead', 'sme', 'mentor'] },
+    { path: '/ai', label: 'AI Center', icon: Bot, roles: ['admin', 'superadmin', 'manager', 'lead', 'mentor'] },
     { path: '/intern-user', label: 'Self-Service Dashboard', icon: User, roles: ['intern'] },
   ]
 
